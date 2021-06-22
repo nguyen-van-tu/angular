@@ -1,0 +1,178 @@
+<vex-page-layout>
+
+	<vex-page-layout-header class="pb-16" fxLayout="column" fxLayoutAlign="center start">
+		<div [class.container]="layoutCtrl.value === 'boxed'" [class.px-gutter]="layoutCtrl.value === 'fullwidth'"
+			class="w-full flex flex-col sm:flex-row justify-between">
+			<div>
+				<h1 class="title mt-0 mb-1" translate>Management Board</h1>
+				<vex-breadcrumbs [crumbs]="['Apps', 'Management', 'Users']"></vex-breadcrumbs>
+			</div>
+
+			<mat-button-toggle-group [formControl]="layoutCtrl" class="mt-4 sm:mt-0">
+				<mat-button-toggle value="boxed">BOXED</mat-button-toggle>
+				<mat-button-toggle value="fullwidth">FULL-WIDTH</mat-button-toggle>
+			</mat-button-toggle-group>
+		</div>
+	</vex-page-layout-header>
+
+	<vex-page-layout-content [class.container]="layoutCtrl.value === 'boxed'"
+		[class.px-gutter]="layoutCtrl.value === 'fullwidth'" class="-mt-6">
+
+		<div class="card overflow-auto -mt-16">
+			<div class="bg-app-bar px-6 h-16 border-b sticky left-0" fxLayout="row" fxLayoutAlign="start center">
+				<h2 class="title my-0 ltr:pr-4 rtl:pl-4 ltr:mr-4 rtl:ml-4 ltr:border-r rtl:border-l" fxFlex="none"
+					fxHide.xs>
+					<span *ngIf="listSelection && listSelection.length === 0" translate>Users</span>
+					<span *ngIf="totalSelected > 0">{{ totalSelected }}
+						<span *ngIf="totalSelected > 1">{{'Users' | translate}}</span><span
+							*ngIf="totalSelected === 1">{{'User' | translate}}</span> {{'selected' |
+						translate}}</span>
+				</h2>
+
+				<div *ngIf="listSelection && listSelection.length > 0" class="mr-4 pr-4 border-r" fxFlex="none">
+					<button (click)="deleteUsers()" color="primary" mat-icon-button
+						matTooltip="Delete selected" type="button">
+						<mat-icon [icIcon]="icDelete"></mat-icon>
+					</button>
+					<ng-container *ngIf="viewMode===2">
+						<button color="primary" (click)="reactiveUsers()" mat-icon-button
+							matTooltip="Reactive" type="button">
+							<mat-icon>refresh</mat-icon>
+						</button>
+					</ng-container>
+				</div>
+
+				<div class="bg-card rounded-full border px-4" fxFlex="400px" fxFlex.lt-md="auto" fxHide.xs
+					fxLayout="row" fxLayoutAlign="start center">
+					<ic-icon [icIcon]="icSearch" size="20px" class="cursor-pointer" (click)="actionSearch()"></ic-icon>
+					<input class="px-4 py-3 border-0 outline-none w-full bg-transparent" placeholder="Search..."
+						type="search" [(ngModel)]="txtSearch" (keyup.enter)="actionSearch()">
+				</div>
+
+				<span fxFlex></span>
+
+				<button class="ml-4" fxFlex="none" fxHide.gt-xs mat-icon-button type="button">
+					<mat-icon [icIcon]="icSearch"></mat-icon>
+				</button>
+
+				<mat-form-field class="ml-4" fxFlex="none">
+					<mat-label translate>View mode</mat-label>
+					<mat-select [(ngModel)]="viewMode" (selectionChange)="changeMode()">
+						<mat-option *ngFor="let option of options" [value]="option.value">
+							{{option.viewValue}}
+						</mat-option>
+					</mat-select>
+				</mat-form-field>
+
+				<button [matMenuTriggerFor]="columnFilterMenu" class="ml-4" fxFlex="none" mat-icon-button
+					matTooltip="Filter Columns" type="button">
+					<mat-icon [icIcon]="icFilterList"></mat-icon>
+				</button>
+
+				<button (click)="createUser()" class="ml-4" color="primary" fxFlex="none" mat-mini-fab
+					matTooltip="Add User" type="button">
+					<mat-icon [icIcon]="icAdd"></mat-icon>
+				</button>
+			</div>
+
+			<table @stagger [dataSource]="dataSource" class="w-full" mat-table matMultiSort
+				(matSortChange)="sortData($event)">
+				<!-- Checkbox Column -->
+				<ng-container matColumnDef="checkbox">
+					<th *matHeaderCellDef mat-header-cell>
+						<mat-checkbox (change)="$event ? masterToggle() : null" 
+							[checked]="selection.hasValue() && isAllSelected()" color="primary">
+						</mat-checkbox>
+					</th>
+					<td *matCellDef="let row" class="w-4" mat-cell>
+						<mat-checkbox (change)="actionCheckBox($event,row)"
+							(click)="$event.stopPropagation()" [checked]="selection.isSelected(row)" color="primary">
+						</mat-checkbox>
+					</td>
+				</ng-container>
+				<!-- Text Columns -->
+				<ng-container *ngFor="let column of columns; trackBy: trackByProperty">
+					<ng-container *ngIf="column.type === 'text'" [matColumnDef]="column.property">
+						<th *matHeaderCellDef class="uppercase" mat-header-cell
+							[mat-multi-sort-header]="column.property">
+							{{ column.label |
+							translate }}
+						<td *matCellDef="let row" [ngClass]="column.cssClasses" mat-cell>
+							<ng-container *ngIf="column.label !== 'Birthday' && column.label !== 'Gender'">
+								{{ row[column.property] }}
+							</ng-container>
+							<ng-container *ngIf="column.label === 'Birthday'">
+								{{ row[column.property] | date: 'dd-MM-yyyy' }}
+							</ng-container>
+
+							<ng-container *ngIf="column.label === 'Gender'">
+								<ng-container *ngIf="row[column.property] === 1">
+									{{ 'Male' | translate }}
+								</ng-container>
+								<ng-container *ngIf="row[column.property] === 2">
+									{{ 'Female' | translate }}
+								</ng-container>
+							</ng-container>
+							<!-- <ng-container *ngIf="column.label === 'Active'">
+								<ng-container *ngIf="row[column.property] === 0">
+									<mat-icon style="border-radius: 50%; background-color: green;">check
+									</mat-icon>
+								</ng-container>
+								<ng-container *ngIf="row[column.property] !== 0">
+									<mat-icon class="active-icon green-600 s-16"
+										style="border-radius: 50%; background-color: red;">close
+									</mat-icon>
+								</ng-container>
+							</ng-container> -->
+						</td>
+					</ng-container>
+				</ng-container>
+
+				<!-- Contact Column -->
+				<ng-container matColumnDef="contact">
+					<th *matHeaderCellDef mat-header-cell mat-sort-header></th>
+					<td *matCellDef="let row" mat-cell>
+						<div class="flex">
+							<a (click)="$event.stopPropagation()"
+								class="w-8 h-8 leading-none flex items-center justify-center hover:bg-hover text-primary bg-primary-light"
+								mat-icon-button>
+								<mat-icon [icIcon]="icPhone" size="18px"></mat-icon>
+							</a>
+
+							<a (click)="$event.stopPropagation()"
+								class="w-8 h-8 leading-none flex items-center justify-center ml-1 hover:bg-hover text-teal bg-teal-light"
+								mat-icon-button>
+								<mat-icon [icIcon]="icMail" size="18px"></mat-icon>
+							</a>
+
+							<a (click)="$event.stopPropagation()"
+								class="w-8 h-8 leading-none flex items-center justify-center ml-1 hover:bg-hover text-green bg-green-light"
+								mat-icon-button>
+								<mat-icon [icIcon]="icMap" size="18px"></mat-icon>
+							</a>
+						</div>
+					</td>
+				</ng-container>
+
+				<tr *matHeaderRowDef="visibleColumns;sticky: true" mat-header-row></tr>
+				<tr (click)="updateCustomer(row)" *matRowDef="let row; columns: visibleColumns;" @fadeInUp
+					class="hover:bg-hover trans-ease-out cursor-pointer" mat-row></tr>
+			</table>
+
+			<mat-paginator [pageSize]="this.pageSize" appPagination [pageIndex]='this.pageIndex'
+				[pageSizeOptions]="this.pageSizeOptions" [length]="this.totalElements" (page)="changePage($event)">
+			</mat-paginator>
+		</div>
+
+	</vex-page-layout-content>
+
+</vex-page-layout>
+
+<mat-menu #columnFilterMenu="matMenu" xPosition="before" yPosition="below">
+	<button (click)="toggleColumnVisibility(column, $event)" *ngFor="let column of columns"
+		class="checkbox-item mat-menu-item">
+		<mat-checkbox (click)="$event.stopPropagation()" [(ngModel)]="column.visible" color="primary">
+			{{ column.label }}
+		</mat-checkbox>
+	</button>
+</mat-menu>

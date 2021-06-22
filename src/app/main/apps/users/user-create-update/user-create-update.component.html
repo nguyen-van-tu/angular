@@ -1,0 +1,196 @@
+<form (ngSubmit)="save()" [formGroup]="form">
+  <div fxLayout="row" fxLayoutAlign="start center" mat-dialog-title>
+    <!-- <img *ngIf="form.get('imageSrc').value" [src]="form.get('imageSrc').value" class="avatar mr-5"> -->
+
+    <h2 *ngIf="form.get('userName').value" class="headline m-0" fxFlex="auto" translate>Edit Information</h2>
+    <h2 *ngIf="!form.get('userName').value" class="headline m-0" fxFlex="auto">New
+      User</h2>
+
+    <!-- <button [matMenuTriggerFor]="settingsMenu" class="text-secondary" mat-icon-button type="button">
+      <mat-icon [icIcon]="icMoreVert"></mat-icon>
+    </button> -->
+
+    <button class="text-secondary" mat-dialog-close mat-icon-button type="button">
+      <mat-icon [icIcon]="icClose"></mat-icon>
+    </button>
+  </div>
+
+  <mat-divider class="-mx-6 text-border"></mat-divider>
+
+  <mat-dialog-content fxLayout="column">
+    <ng-container *ngIf="isCreateMode()">
+      <mat-form-field class="flex-auto">
+        <mat-label translate>Username</mat-label>
+        <input cdkFocusInitial formControlName="username" matInput (blur)="checkExistsUsername()" required>
+        <mat-icon [icIcon]="icPerson" class="mr-3" matPrefix></mat-icon>
+        <mat-error *ngIf="form.get('username').hasError('required')">
+          Username is required
+        </mat-error>
+        <mat-error *ngIf="form.get('username').hasError('pattern')">
+          Username must be between 5 and 20 characters long and contain no special characters
+        </mat-error>
+        <mat-error *ngIf="checkUsername">
+          Username is already exists
+        </mat-error>
+      </mat-form-field>
+
+      <div class="flex flex-col sm:flex-row">
+        <mat-form-field class="mt-6 flex-auto">
+          <mat-label>Password</mat-label>
+          <input cdkFocusInitial formControlName="password" type="password" matInput required>
+          <mat-icon class="mr-3" matPrefix>vpn_key</mat-icon>
+          <mat-error *ngIf="form.get('password').hasError('required')">
+            Password is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field class="sm:mt-6 sm:ml-6 flex-auto">
+          <mat-label>Confirm Password</mat-label>
+          <input cdkFocusInitial formControlName="confirmPassword" type="password" matInput required>
+          <mat-icon class="mr-3" matPrefix>vpn_key</mat-icon>
+        </mat-form-field>
+      </div>
+    </ng-container>
+
+    <div class="flex flex-col sm:flex-row">
+      <mat-form-field class="mt-4 flex-auto">
+        <mat-label translate>First Name</mat-label>
+        <input formControlName="firstName" matInput required>
+        <mat-icon [icIcon]="icPerson" class="mr-3" matPrefix></mat-icon>
+        <mat-error *ngIf="form.get('firstName').hasError('required')">
+          First name is required
+        </mat-error>
+        <mat-error *ngIf="form.get('firstName').hasError('pattern')">
+          First name must be between 1 and 30 characters long and contain no special characters
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="sm:mt-4 sm:ml-4 flex-auto">
+        <mat-label translate>Mid Name</mat-label>
+        <input formControlName="midName" matInput>
+        <mat-icon [icIcon]="icPerson" class="mr-3" matPrefix></mat-icon>
+        <mat-error *ngIf="form.get('midName').hasError('pattern')">
+          Mid name can empty or less than 30 characters and no special characters
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="sm:mt-4 sm:ml-4 flex-auto">
+        <mat-label translate>Last Name</mat-label>
+        <input formControlName="lastName" matInput required>
+        <mat-icon [icIcon]="icPerson" class="mr-3" matPrefix></mat-icon>
+        <mat-error *ngIf="form.get('lastName').hasError('required')">
+          Last name is required
+        </mat-error>
+        <mat-error *ngIf="form.get('lastName').hasError('pattern')">
+          Last name must be between 1 and 30 characters long and contain no special characters
+        </mat-error>
+      </mat-form-field>
+
+    </div>
+
+    <div class="flex flex-col sm:flex-row">
+      <mat-form-field class="mt-4 flex-auto">
+        <mat-label translate>Display Name</mat-label>
+        <input formControlName="displayName" matInput required>
+        <mat-icon [icIcon]="icPerson" class="mr-3" matPrefix></mat-icon>
+        <mat-error *ngIf="form.get('displayName').hasError('required')">
+          Display name is required
+        </mat-error>
+        <mat-error *ngIf="form.get('displayName').hasError('pattern')">
+          Display name must be between 1 and 30 characters long and contain no special characters
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="sm:mt-4 sm:ml-4 flex-auto">
+        <mat-label translate>Birthday</mat-label>
+        <input matInput [matDatepickerFilter]="dateFilter" (click)="datepickerRef.open()" style="cursor: pointer;"
+          [matDatepicker]="datepickerRef" formControlName="dateOfBirth" name="dateOfBirth" required readonly>
+        <mat-datepicker-toggle [for]="datepickerRef" matSuffix></mat-datepicker-toggle>
+        <mat-datepicker #datepickerRef></mat-datepicker>
+        <mat-error *ngIf="form.get('dateOfBirth').hasError('required')">
+          Birthday is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="sm:mt-4 sm:ml-4 flex-auto" style="width: -webkit-fill-available;">
+        <mat-label translate>Gender</mat-label>
+        <mat-select formControlName="gender" name="gender" required>
+          <mat-option *ngFor="let gender of genders" [value]="gender.value">
+            {{gender.viewValue}}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="form.get('gender').hasError('required')">
+          Gender is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="flex flex-col sm:flex-row">
+      <mat-form-field class="mt-6 flex-auto">
+        <mat-label translate>Address</mat-label>
+        <input formControlName="address" matInput>
+        <mat-icon [icIcon]="icEditLocation" class="mr-3" matPrefix></mat-icon>
+        <mat-error *ngIf="form.get('address').hasError('address')">
+          Address is required
+        </mat-error>
+        <mat-error *ngIf="form.get('address').hasError('pattern')">
+          Address must be between 4 and 200 characters long and contain no special characters
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="flex flex-col sm:flex-row">
+      <mat-form-field class="mt-6 flex-auto">
+        <mat-label>Email</mat-label>
+        <input formControlName="email" matInput required (blur)="checkEmailExists()">
+        <mat-icon [icIcon]="icMail" class="mr-3" matPrefix></mat-icon>
+        <mat-error *ngIf="form.get('email').hasError('email')">
+          Email is required
+        </mat-error>
+        <mat-error *ngIf="form.get('email').hasError('pattern')">
+          Email is invalid
+        </mat-error>
+        <mat-error *ngIf="checkEmail">
+          Email is already exists
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="sm:mt-6 sm:ml-6 flex-auto">
+        <mat-label translate>Phone</mat-label>
+        <input formControlName="phone" matInput required>
+        <mat-icon [icIcon]="icPhone" class="mr-3" matPrefix></mat-icon>
+        <mat-error *ngIf="form.get('phone').hasError('phone')">
+          Phone is required
+        </mat-error>
+        <mat-error *ngIf="form.get('phone').hasError('pattern')">
+          Phone is starting with 0 or +, minimum 9 and maximum 30 characters
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close type="button">{{'CANCEL'| translate}}</button>
+    <button *ngIf="isCreateMode()" color="primary" mat-button type="submit" [disabled]="form.invalid">{{'CREATE USER'
+      | translate}}</button>
+    <button *ngIf="isUpdateMode()" color="primary" mat-button type="submit" [disabled]="form.invalid">{{'UPDATE USER' |
+      translate}}</button>
+  </mat-dialog-actions>
+</form>
+
+<!-- <mat-menu #settingsMenu="matMenu" xPosition="before" yPosition="below">
+  <button mat-menu-item>
+    <mat-icon [icIcon]="icPrint"></mat-icon>
+    <span>Print</span>
+  </button>
+
+  <button mat-menu-item>
+    <mat-icon [icIcon]="icDownload"></mat-icon>
+    <span>Export</span>
+  </button>
+
+  <button mat-menu-item>
+    <mat-icon [icIcon]="icDelete"></mat-icon>
+    <span>Delete</span>
+  </button>
+</mat-menu> -->

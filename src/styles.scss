@@ -1,0 +1,86 @@
+@import "~simplebar/dist/simplebar.css";
+@import "~highlight.js/styles/androidstudio.css";
+// Vex Core
+@import "./@vex/styles/core";
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
+/*
+  You can override any CSS Variable or style here
+  Example:
+
+  :root {
+   --sidenav-background: #333333;
+  }
+
+  All possible variables can be found in @vex/styles/core or by simply inspecting the element you want to change
+  in Chrome/Firefox DevTools
+*/
+
+/**
+  Uncomment the below code and adjust the values to fit your colors, the application will automatically adjust
+ */
+:root {
+  // --color-primary: blue;
+  // --color-primary-contrast: white;
+
+  // --color-accent: yellow;
+  // --color-accent-contrast: black;
+
+  // --color-warn: yellow;
+  // --color-warn-contrast: black;
+}
+
+custom-paginator-container {
+  justify-content: flex-end;
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.5;
+  }
+}
+// css pagination
+.custom-paginator-counter {
+  white-space: nowrap;
+  margin: 0px 4px 0px 10px !important;
+}
+
+.custom-paginator-page {
+  border-radius: 4px;
+  outline: none;
+  border: none;
+  margin: 0.4em;
+  font-size: 14px;
+  min-width: 24px;
+  width: auto;
+  min-height: 24px;
+  max-height: 24px;
+  padding: 1px 6px;
+  margin-left: 0;
+  margin-right: 8px;
+}
+
+.custom-paginator-page-enabled {
+  color: white;
+  background: transparent;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgb(123, 164, 192) !important;
+  }
+}
+
+.custom-paginator-page-disabled {
+  background-color: #3c8bb6;
+  color: #fff;
+}
+
+.custom-paginator-arrow-disabled {
+  color: #dfe3e6;
+}
+
+.custom-paginator-arrow-enabled {
+  color: #999999;
+}
